@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/styles/style.css">
+    <title>Liste des Matches</title>
+</head>
+<header>
+    <nav class="navbar"><a href="/">TorneoMaker</a></nav>
+    <h1>Liste des Match</h1>
+</header>
+<body>
+    <div class="corps">
+    <form method="GET" action="/show_matches">
+        <label for="player_search">Recherche par joueur :</label>
+        <input type="text" name="player_search" id="player_search">
+        <button type="submit">Rechercher</button>
+    </form>
+    <br>
+    <ul>
+        {% for match in matches %}
+            <li>
+                {{ match.player1.name }} vs {{ match.player2.name }}
+                {% if match.winner %}
+                    - Gagnant : {{ match.winner.name }}
+                {% else %}
+                    - Match nul
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <br>
+    <a href="{{ url_for('new_match') }}" class="link">Nouveau Match</a>
+</div>
+</body>
+</html>

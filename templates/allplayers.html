@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/styles/style.css">
+    <title>Classement des Joueurs</title>
+</head>
+<body>
+<nav class="navbar"><a href="/">TorneoMaker</a>
+    <div class="navlinks">
+        <ul>
+            <li><a href="/register" class="">Inscription</a></li>
+            <li><a href="/login" class="">Connexion</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="corps">
+<h2>Classement des Joueurs</h2>
+
+<input type="text" id="searchInput" onkeyup="searchPlayers()" placeholder="Rechercher par nom">
+
+<table id="playerTable">
+    <thead>
+        <tr>
+            <th>Classement</th>
+            <th>Nom</th>
+            <th>Elo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for joueur in joueurs %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ joueur.name }}</td>
+                <td>{{ joueur.elo }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function searchPlayers() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById('searchInput');
+        filter = input.value.toUpperCase();
+        table = document.getElementById('playerTable');
+        tr = table.getElementsByTagName('tr');
+
+        var colIndex = 1; // Supposons que la colonne de recherche soit la deuxième colonne (index 1)
+
+        if (filter === '') {
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = '';
+            }
+        } else {
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName('td')[colIndex];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    }
+
+    // Appelle la fonction displayRanking après le chargement de la page
+    window.onload = function() {
+        displayRanking();
+    };
+
+    // Fonction pour attribuer les classements en tenant compte de l'égalité d'Elo
+    function displayRanking() {
+        var table, rows, i;
+        table = document.getElementById('playerTable');
+        rows = table.getElementsByTagName('tr');
+
+        // Récupère l'index de la colonne Elo
+        var colIndex = 2; // Supposons que la colonne Elo soit à l'indice 2
+
+        // Trie le tableau par Elo décroissante et, en cas d'égalité d'Elo, par ordre d'apparition dans le tableau
+        var sorted = false;
+        while (!sorted) {
+            sorted = true;
+            for (i = 1; i < rows.length - 1; i++) {
+                var currentElo = parseInt(rows[i].getElementsByTagName('td')[colIndex].textContent || rows[i].getElementsByTagName('td')[colIndex].innerText);
+                var nextElo = parseInt(rows[i + 1].getElementsByTagName('td')[colIndex].textContent || rows[i + 1].getElementsByTagName('td')[colIndex].innerText);
+
+                if (currentElo < nextElo || (currentElo === nextElo && i > i + 1)) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    sorted = false;
+                }
+            }
+        }
+
+        // Attribue les classements en tenant compte de l'égalité d'Elo
+        var currentRank = 1;
+        var currentElo = -1;
+        for (i = 1; i < rows.length; i++) {
+            var elo = parseInt(rows[i].getElementsByTagName('td')[colIndex].textContent || rows[i].getElementsByTagName('td')[colIndex].innerText);
+
+            if (elo !== currentElo) {
+                currentRank = i;
+                currentElo = elo;
+            }
+
+            var rankCell = rows[i].getElementsByTagName('td')[0]; // Première colonne pour le classement
+            rankCell.textContent = currentRank;
+        }
+    }
+</script>
+</div>
+</body>
+</html>
